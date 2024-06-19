@@ -26,7 +26,7 @@ export const signin = async (req, res, next) => {
     const validPassword = bcryptjs.compareSync(password, validUser.password);
     console.log(validPassword);
     if (!validPassword) {
-      return next(401, "Invalid Credentials");
+      return next(errorHandler(401, "Invalid Credentials"));
     }
 
     // if user is valid create a jwt token also we can add expiry for cookie
