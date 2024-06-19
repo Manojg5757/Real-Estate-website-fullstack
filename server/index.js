@@ -2,6 +2,7 @@ import express from "express";
 import cors from "cors";
 import mongoose from "mongoose";
 import dotenv from "dotenv";
+import userRouter from "./routes/user.route.js";
 dotenv.config();
 const app = express();
 
@@ -17,10 +18,10 @@ mongoose
 
 const port = 3000;
 
-app.get("/", (req, res) => {
-  res.json({ message: "Manoj" });
-});
 
 app.listen(port, () => {
   console.log("Connected to server");
 });
+
+
+app.use('/api/user',userRouter)
