@@ -3,6 +3,7 @@ import { Link, useNavigate } from 'react-router-dom'
 import {useDispatch, useSelector} from 'react-redux'
 import { signinStart,signinSuccess,signinFailure } from '../redux/user/userSlice'
 import axios from 'axios'
+import OAuth from '../components/OAuth'
 
 const Signin = () => {
   const {loading,error} = useSelector(state=>state.user)
@@ -56,6 +57,7 @@ console.log(error)
             loading? "Loding..." : "SIGN IN"
           }
         </button>
+        <OAuth />
       </form>
       {
 
