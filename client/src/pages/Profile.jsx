@@ -1,5 +1,5 @@
 import React, { useEffect, useRef, useState } from "react";
-import { useSelector } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import {
   getDownloadURL,
   getStorage,
@@ -7,13 +7,17 @@ import {
   uploadBytesResumable,
 } from "firebase/storage";
 import { app } from "../firebase.js";
+import {updateSuccess,updateStart,updateFailure} from '../redux/user/userSlice.js'
+import axios from "axios";
 
 const Profile = () => {
-  const { currentUser } = useSelector((state) => state.user);
+  const { currentUser,loading,error } = useSelector((state) => state.user);
   const [file, setFile] = useState(undefined);
   const [filePer, setFilePerc] = useState(0);
   const [fileUploadError, setFileUploadError] = useState(false);
   const [formData, setFormData] = useState({});
+  const[updateSuccessMessage,setUpdateSuccessMessage] = useState(false)
+  const dispatch = useDispatch()
   console.log(filePer);
   console.log(fileUploadError);
   console.log(formData);
@@ -47,10 +51,31 @@ const Profile = () => {
       }
     )
   };
+
+  const handleChange = (e)=>{
+    setFormData({...formData,[e.target.id]:e.target.value})
+  }
+
+  const handleSubmit = async(e)=>{
+    e.preventDefault();
+    try {
+      dispatch(updateStart())
+      const res = await axios.post(`/api/user/update/${currentUser._id}`,formData)
+      console.log(res)
+      if(res){
+        dispatch(updateSuccess(res.data))
+        setUpdateSuccessMessage(true)
+      }else{
+        dispatch(updateFailure(res.message))
+      }
+    } catch (error) {
+      dispatch(updateFailure(error.response.data.message))
+    }
+  }
   return (
     <div className="max-w-xl mx-auto p-3">
       <h1 className="text-center text-3xl font-semibold my-7">Profile</h1>
-      <form action="" className="flex flex-col gap-4">
+      <form onSubmit={handleSubmit} className="flex flex-col gap-4">
         <input
           type="file"
           accept="image/*"
@@ -83,27 +108,40 @@ const Profile = () => {
           className="p-3 border rounded-lg"
           id="username"
           placeholder="Username..."
+          defaultValue={currentUser.username}
+          onChange={handleChange}
         />
         <input
           type="email"
           className="p-3 border rounded-lg"
           id="email"
           placeholder="Email..."
+          defaultValue={currentUser.email}
+          onChange={handleChange}
         />
         <input
           type="text"
           className="p-3 border rounded-lg "
           id="password"
           placeholder="password..."
+          onChange={handleChange}
         />
-        <button className="bg-slate-700 text-white p-3 rounded-lg disabled:opacity-70 hover:opacity-90">
-          UPDATE
+        <button disabled={loading} className="bg-slate-700 text-white p-3 rounded-lg disabled:opacity-70 hover:opacity-90">
+          {
+            loading ? "Loading..." : "UPDATE"
+          }
         </button>
       </form>
       <div className="flex justify-between text-red-600 mt-2">
         <p className="cursor-pointer">Delete Account?</p>
         <p className="cursor-pointer">Sign Out</p>
       </div>
+      <p className="text-red-700 text-center">
+        {error ? error : ''}
+      </p>
+      <p className="text-green-700 text-center">
+        {updateSuccessMessage ? "Update Success" : ''}
+      </p>
     </div>
   );
 };
