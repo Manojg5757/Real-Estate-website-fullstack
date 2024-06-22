@@ -7,7 +7,7 @@ import {
   uploadBytesResumable,
 } from "firebase/storage";
 import { app } from "../firebase.js";
-import {updateSuccess,updateStart,updateFailure,deleteSuccess,deleteFailure,deleteStart} from '../redux/user/userSlice.js'
+import {updateSuccess,updateStart,updateFailure,deleteSuccess,deleteFailure,deleteStart,signoutStart,signoutSuccess,signoutFailure} from '../redux/user/userSlice.js'
 import axios from "axios";
 
 const Profile = () => {
@@ -84,6 +84,17 @@ const Profile = () => {
     }
  }
 
+ const handleSignout = async()=>{
+  try {
+    dispatch(signoutStart())
+    const res = await axios.get('/api/auth/signout')
+    dispatch(signoutSuccess())
+
+  } catch (error) {
+    dispatch(signoutFailure())
+  }
+ }
+
   return (
     <div className="max-w-xl mx-auto p-3">
       <h1 className="text-center text-3xl font-semibold my-7">Profile</h1>
@@ -146,7 +157,7 @@ const Profile = () => {
       </form>
       <div className="flex justify-between text-red-600 mt-2">
         <p className="cursor-pointer" onClick={handleDelete}>Delete Account?</p>
-        <p className="cursor-pointer">Sign Out</p>
+        <p className="cursor-pointer" onClick={handleSignout}>Sign Out</p>
       </div>
       <p className="text-red-700 text-center">
         {error ? error : ''}
