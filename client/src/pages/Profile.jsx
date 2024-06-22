@@ -7,7 +7,7 @@ import {
   uploadBytesResumable,
 } from "firebase/storage";
 import { app } from "../firebase.js";
-import {updateSuccess,updateStart,updateFailure} from '../redux/user/userSlice.js'
+import {updateSuccess,updateStart,updateFailure,deleteSuccess,deleteFailure,deleteStart} from '../redux/user/userSlice.js'
 import axios from "axios";
 
 const Profile = () => {
@@ -72,6 +72,18 @@ const Profile = () => {
       dispatch(updateFailure(error.response.data.message))
     }
   }
+
+ const handleDelete = async()=>{
+    try {
+      dispatch(deleteStart())
+      const res = await axios.delete(`/api/user/delete/${currentUser._id}`)
+      dispatch(deleteSuccess())
+      console.log(res.data)
+    } catch (error) {
+     dispatch(deleteFailure(error.message))
+    }
+ }
+
   return (
     <div className="max-w-xl mx-auto p-3">
       <h1 className="text-center text-3xl font-semibold my-7">Profile</h1>
@@ -133,7 +145,7 @@ const Profile = () => {
         </button>
       </form>
       <div className="flex justify-between text-red-600 mt-2">
-        <p className="cursor-pointer">Delete Account?</p>
+        <p className="cursor-pointer" onClick={handleDelete}>Delete Account?</p>
         <p className="cursor-pointer">Sign Out</p>
       </div>
       <p className="text-red-700 text-center">
