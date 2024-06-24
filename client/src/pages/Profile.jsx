@@ -155,7 +155,7 @@ const Profile = () => {
             loading ? "Loading..." : "UPDATE"
           }
         </button>
-        <button className="bg-green-700 rounded-lg p-3 hover:opacity-90"><Link to='/create-listing'>CREATE LISTING</Link></button>
+        <button type="button" className="bg-green-700 rounded-lg p-3 hover:opacity-90"><Link to='/create-listing'>CREATE LISTING</Link></button>
       </form>
       <div className="flex justify-between text-red-600 mt-2">
         <p className="cursor-pointer" onClick={handleDelete}>Delete Account?</p>

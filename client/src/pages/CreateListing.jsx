@@ -32,6 +32,8 @@ const CreateListing = () => {
   const [imageUploading, setImageUploading] = useState(false);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(false);
+
+  // getting image urls from firebase and adding it to formData
  
   const handleImageUpload = () => {
     if (
@@ -62,6 +64,7 @@ const CreateListing = () => {
     }
   };
 
+  // saving images in firebase using promise because there are multiple asynchronous operations
   const storeImage = async (file) => {
     return new Promise((resolve, reject) => {
       const storage = getStorage(app);
@@ -88,7 +91,7 @@ const CreateListing = () => {
     });
   };
 
-  
+  // image deleting function
 
   const handleImageDelete = (index) => {
     setFormData({
@@ -96,6 +99,8 @@ const CreateListing = () => {
       imageUrls: formData.imageUrls.filter((_, i) => i !== index),
     });
   };
+
+  // updating form input
 
   const handleInputChange = (e) => {
     if (e.target.id === "sale" || e.target.id === "rent") {
@@ -125,6 +130,8 @@ const CreateListing = () => {
       });
     }
   };
+
+  // form submit handler
 
   const handleSubmit = async (e) => {
     e.preventDefault();
