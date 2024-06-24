@@ -1,6 +1,6 @@
 import React, { useEffect, useRef, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import {Link} from 'react-router-dom'
+import { Link } from "react-router-dom";
 import {
   getDownloadURL,
   getStorage,
@@ -8,17 +8,29 @@ import {
   uploadBytesResumable,
 } from "firebase/storage";
 import { app } from "../firebase.js";
-import {updateSuccess,updateStart,updateFailure,deleteSuccess,deleteFailure,deleteStart,signoutStart,signoutSuccess,signoutFailure} from '../redux/user/userSlice.js'
+import {
+  updateSuccess,
+  updateStart,
+  updateFailure,
+  deleteSuccess,
+  deleteFailure,
+  deleteStart,
+  signoutStart,
+  signoutSuccess,
+  signoutFailure,
+} from "../redux/user/userSlice.js";
 import axios from "axios";
 
 const Profile = () => {
-  const { currentUser,loading,error } = useSelector((state) => state.user);
+  const { currentUser, loading, error } = useSelector((state) => state.user);
   const [file, setFile] = useState(undefined);
   const [filePer, setFilePerc] = useState(0);
   const [fileUploadError, setFileUploadError] = useState(false);
   const [formData, setFormData] = useState({});
-  const[updateSuccessMessage,setUpdateSuccessMessage] = useState(false)
-  const dispatch = useDispatch()
+  const [listings, setListings] = useState([]);
+  const [updateSuccessMessage, setUpdateSuccessMessage] = useState(false);
+  const [showListingError, setShowListingError] = useState(false);
+  const dispatch = useDispatch();
   console.log(filePer);
   console.log(fileUploadError);
   console.log(formData);
@@ -37,11 +49,12 @@ const Profile = () => {
     const uploadTask = uploadBytesResumable(storageRef, file);
 
     uploadTask.on(
-      "state_changed", 
+      "state_changed",
       (snapshot) => {
-      const progress = (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
-      setFilePerc(Math.round(progress));
-    },
+        const progress =
+          (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
+        setFilePerc(Math.round(progress));
+      },
       (error) => {
         setFileUploadError(error);
       },
@@ -50,52 +63,63 @@ const Profile = () => {
           setFormData({ ...formData, avatar: downloadURL });
         });
       }
-    )
+    );
   };
 
-  const handleChange = (e)=>{
-    setFormData({...formData,[e.target.id]:e.target.value})
-  }
+  const handleChange = (e) => {
+    setFormData({ ...formData, [e.target.id]: e.target.value });
+  };
 
-  const handleSubmit = async(e)=>{
+  const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-      dispatch(updateStart())
-      const res = await axios.post(`/api/user/update/${currentUser._id}`,formData)
-      console.log(res)
-      if(res){
-        dispatch(updateSuccess(res.data))
-        setUpdateSuccessMessage(true)
-      }else{
-        dispatch(updateFailure(res.message))
+      dispatch(updateStart());
+      const res = await axios.post(
+        `/api/user/update/${currentUser._id}`,
+        formData
+      );
+      console.log(res);
+      if (res) {
+        dispatch(updateSuccess(res.data));
+        setUpdateSuccessMessage(true);
+      } else {
+        dispatch(updateFailure(res.message));
       }
     } catch (error) {
-      dispatch(updateFailure(error.response.data.message))
+      dispatch(updateFailure(error.response.data.message));
     }
-  }
+  };
 
- const handleDelete = async()=>{
+  const handleDelete = async () => {
     try {
-      dispatch(deleteStart())
-      const res = await axios.delete(`/api/user/delete/${currentUser._id}`)
-      dispatch(deleteSuccess())
-      console.log(res.data)
+      dispatch(deleteStart());
+      const res = await axios.delete(`/api/user/delete/${currentUser._id}`);
+      dispatch(deleteSuccess());
+      console.log(res.data);
     } catch (error) {
-     dispatch(deleteFailure(error.message))
+      dispatch(deleteFailure(error.message));
     }
- }
+  };
 
- const handleSignout = async()=>{
-  try {
-    dispatch(signoutStart())
-    const res = await axios.get('/api/auth/signout')
-    dispatch(signoutSuccess())
-
-  } catch (error) {
-    dispatch(signoutFailure())
-  }
- }
-
+  const handleSignout = async () => {
+    try {
+      dispatch(signoutStart());
+      const res = await axios.get("/api/auth/signout");
+      dispatch(signoutSuccess());
+    } catch (error) {
+      dispatch(signoutFailure());
+    }
+  };
+  const handleGetListing = async (id) => {
+    try {
+      setShowListingError(false);
+      const res = await axios.get("/api/user/listing/" + id);
+      setListings(res.data);
+    } catch (error) {
+      setShowListingError(error.message);
+    }
+  };
+  console.log(listings);
   return (
     <div className="max-w-xl mx-auto p-3">
       <h1 className="text-center text-3xl font-semibold my-7">Profile</h1>
@@ -114,18 +138,17 @@ const Profile = () => {
           alt=""
         />
         <p className="text-sm self-center">
-          {
-            fileUploadError ? 
-            <span className="text-red-700">Error in Image Upload(Image must be less than 2MB)</span>
-            :
-            filePer >0 && filePer < 100 ?
+          {fileUploadError ? (
+            <span className="text-red-700">
+              Error in Image Upload(Image must be less than 2MB)
+            </span>
+          ) : filePer > 0 && filePer < 100 ? (
             <span className="text-slate-700">{`Uploading ${filePer}`}</span>
-            :
-            filePer === 100 ?
+          ) : filePer === 100 ? (
             <span className="text-green-700">Upload Complete</span>
-            :
-             ""
-          }
+          ) : (
+            ""
+          )}
         </p>
         <input
           type="text"
@@ -150,23 +173,59 @@ const Profile = () => {
           placeholder="password..."
           onChange={handleChange}
         />
-        <button disabled={loading} className="bg-slate-700 text-white p-3 rounded-lg disabled:opacity-70 hover:opacity-90">
-          {
-            loading ? "Loading..." : "UPDATE"
-          }
+        <button
+          disabled={loading}
+          className="bg-slate-700 text-white p-3 rounded-lg disabled:opacity-70 hover:opacity-90"
+        >
+          {loading ? "Loading..." : "UPDATE"}
         </button>
-        <button type="button" className="bg-green-700 rounded-lg p-3 hover:opacity-90"><Link to='/create-listing'>CREATE LISTING</Link></button>
+        <button
+          type="button"
+          className="bg-green-700 rounded-lg p-3 hover:opacity-90"
+        >
+          <Link to="/create-listing">CREATE LISTING</Link>
+        </button>
       </form>
       <div className="flex justify-between text-red-600 mt-2">
-        <p className="cursor-pointer" onClick={handleDelete}>Delete Account?</p>
-        <p className="cursor-pointer" onClick={handleSignout}>Sign Out</p>
+        <p className="cursor-pointer" onClick={handleDelete}>
+          Delete Account?
+        </p>
+        <p className="cursor-pointer" onClick={handleSignout}>
+          Sign Out
+        </p>
       </div>
-      <p className="text-red-700 text-center">
-        {error ? error : ''}
-      </p>
+      <p className="text-red-700 text-center">{error ? error : ""}</p>
       <p className="text-green-700 text-center">
-        {updateSuccessMessage ? "Update Success" : ''}
+        {updateSuccessMessage ? "Update Success" : ""}
       </p>
+      <div>
+        <button onClick={() => handleGetListing(currentUser._id)}>
+          View Listings
+        </button>
+
+        {listings &&
+          listings.length > 0 &&
+          listings.map((item) => {
+            return (
+              <div key={item._id} className="flex justify-between">
+                <div className="flex items-center gap-4">
+                  <Link to={`/listing/${item._id}`}>
+                    <img
+                      className="h-16 w-16 object-contain"
+                      src={item.imageUrls[0]}
+                      alt=""
+                    />
+                  </Link>
+                  <p>{item.name}</p>
+                </div>
+                <div className="flex flex-col gap-3">
+                  <button className="text-red-700">Delete</button>
+                  <button>Edit</button>
+                </div>
+              </div>
+            );
+          })}
+      </div>
     </div>
   );
 };
