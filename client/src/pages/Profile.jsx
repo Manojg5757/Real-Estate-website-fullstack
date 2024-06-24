@@ -119,6 +119,15 @@ const Profile = () => {
       setShowListingError(error.message);
     }
   };
+  const handleListingDelete = async(id)=>{
+     try {
+      const res = await axios.delete('/api/listing/delete/'+id)
+      console.log(res.data)
+      setListings((prev)=> prev.filter((item)=> item._id !== id))
+     } catch (error) {
+      console.log(error)
+     }
+  }
   console.log(listings);
   return (
     <div className="max-w-xl mx-auto p-3">
@@ -219,7 +228,7 @@ const Profile = () => {
                   <p>{item.name}</p>
                 </div>
                 <div className="flex flex-col gap-3">
-                  <button className="text-red-700">Delete</button>
+                  <button onClick={()=>handleListingDelete(item._id)} className="text-red-700">Delete</button>
                   <button>Edit</button>
                 </div>
               </div>

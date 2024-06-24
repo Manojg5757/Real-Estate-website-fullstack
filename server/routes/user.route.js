@@ -10,4 +10,5 @@ userRouter.post('/update/:id', verifyUser,updateUser)
 userRouter.delete('/delete/:id',verifyUser,deleteUser)
 userRouter.get('/listing/:id',verifyUser,getListings)
 
+
 export default userRouter
