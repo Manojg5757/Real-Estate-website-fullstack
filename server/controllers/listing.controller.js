@@ -48,3 +48,13 @@ export const deleteListing = async(req,res,next)=>{
       next(error)
    }
  }
+
+ export const getListings = async(req,res,next)=>{
+   const{id} = req.params
+   try {
+     const listing =  await Listing.findById(id)
+     res.status(200).json(listing)
+   } catch (error) {
+      next(error)
+   }
+ }
