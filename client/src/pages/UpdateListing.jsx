@@ -161,7 +161,7 @@ console.log(formData)
       const res = await axios.post("/api/listing/update/" + id, formData);
       setLoading(false);
       console.log(res.data);
-      navigate('/')
+      navigate(`/listing/${id}`)
     } catch (error) {
       setError(error.message);
       console.log(error);
