@@ -9,9 +9,13 @@ import { FaBedPulse } from "react-icons/fa6";
 import { FaCar } from "react-icons/fa6";
 import { GrRestroom } from "react-icons/gr";
 import { RiSofaFill } from "react-icons/ri";
+import {useSelector} from 'react-redux'
+import Contact from '../components/Contact'
 
 
 const Listing = () => {
+  const {currentUser} = useSelector(state=>state.user)
+  const[contact,setContact] = useState(false)
   SwiperCore.use(Navigation)
     const{id} = useParams()
     const[listing,setListing] = useState()
@@ -84,8 +88,18 @@ const Listing = () => {
                     <li className='flex items-center gap-2'><FaCar />{listing.parking ? "Parking Available" : "No Parking"}</li>
                     <li className='flex items-center gap-2'><RiSofaFill />{listing.furnished ? 'Furnished' : "Not Furnished"}</li>
                   </ul>
+                  <div>
+                    {
+                      currentUser && listing.userRef !== currentUser._id && !contact && (
+                        <button onClick={()=>setContact(true)} className='bg-slate-700 w-[100%] rounded text-white p-3'>Contact Landlord</button>
+                      )
+                    }
+                    {
+                      contact && <Contact listing = {listing} /> 
+                    }
                   </div>
-                  
+                  </div>
+                 
                 </div>
             )
         }
