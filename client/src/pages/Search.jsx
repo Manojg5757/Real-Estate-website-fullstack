@@ -1,13 +1,13 @@
 import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import axios from 'axios'
+import axios from "axios";
 import ListingItem from "../components/ListingItem";
 
 const Search = () => {
   const navigate = useNavigate();
-
-  const[loading,setLoading] = useState(false)
-  const[listings,setListings] = useState([])
+  const [showmore, setShowmore] = useState(false);
+  const [loading, setLoading] = useState(false);
+  const [listings, setListings] = useState([]);
   const [inputs, setInputs] = useState({
     searchTerm: "",
     type: "all",
@@ -79,31 +79,55 @@ const Search = () => {
     ) {
       setInputs({
         searchTerm: searchTermFromUrl || "",
-        type: typeFromUrl || 'all',
-        offer: offerFromUrl === 'true' ? true :false,
-        parking: parkingFromUrl === 'true' ? true :false,
-        furnished: furnishedFromUrl === 'true' ? true : false,
-        sort: sortFromUrl || 'createdAt',
-        order: orderFromUrl ||"desc",
+        type: typeFromUrl || "all",
+        offer: offerFromUrl === "true" ? true : false,
+        parking: parkingFromUrl === "true" ? true : false,
+        furnished: furnishedFromUrl === "true" ? true : false,
+        sort: sortFromUrl || "createdAt",
+        order: orderFromUrl || "desc",
       });
     }
 
-    const fetchData = async()=>{
-        try {
-          setLoading(true)
-          const searchQuery = urlParams.toString()
-        const res = await axios.get(`/api/listing/get?${searchQuery}`)
-        setLoading(false)
-        setListings(res.data)
-        } catch (error) {
-          console.log(error)
+    const fetchData = async () => {
+      try {
+        setLoading(true);
+        const searchQuery = urlParams.toString();
+        const res = await axios.get(`/api/listing/get?${searchQuery}`);
+        setLoading(false);
+        setListings(res.data);
+        if (res.data.length > 8) {
+          setShowmore(true);
+        } else {
+          setShowmore(false);
         }
+      } catch (error) {
+        console.log(error);
+      }
+    };
 
-    }
-
-    fetchData()
+    fetchData();
   }, [location.search]);
-  console.log(listings)
+  console.log(listings);
+
+  const handleShowmoreItems = async () => {
+    try {
+      const numberOfListings = listings.length;
+      const startIndex = numberOfListings;
+      const urlParams = new URLSearchParams(location.search);
+      urlParams.set("startIndex", startIndex);
+      const searchQuery = urlParams.toString();
+
+      const res = await axios.get(`/api/listing/get?${searchQuery}`);
+      const data = await res.data;
+      if (data.length < 9) {
+        setShowmore(false);
+      }
+      setListings(prevListings => [...prevListings, ...data]);;
+    } catch (error) {
+      console.log(error)
+    }
+  };
+
   return (
     <div className="flex flex-col sm:flex-row">
       {/* listing filter section --left and right two sections */}
@@ -207,21 +231,24 @@ const Search = () => {
       </div>
       {/* listing card */}
       <div className="flex-1">
-       <div className="flex flex-wrap gap-4 p-7">
-       { !loading && listings.length ===0  && (
-          <p className="text-3xl mt-4 ml-4">No Listings Found</p>
-        )}
-        {
-          loading && (
-            <p className="text-center ">Loading...</p>
-          )
-        }
-        {
-          !loading && listings && listings.map((listItems)=>{
-            return <ListingItem key={listItems._id} listItems={listItems} />
-          })
-        }
-       </div>
+        <div className="flex flex-wrap gap-4 p-7 ">
+          {!loading && listings.length === 0 && (
+            <p className="text-3xl mt-4 ml-4">No Listings Found</p>
+          )}
+          {loading && <p className="text-center ">Loading...</p>}
+          {!loading &&
+            listings &&
+            listings.map((listItems) => {
+              return <ListingItem key={listItems._id} listItems={listItems} />;
+            })}
+          {showmore && (
+            <button 
+               onClick={handleShowmoreItems} 
+               className="text-green-500">
+              Show more
+            </button>
+          )}
+        </div>
       </div>
     </div>
   );

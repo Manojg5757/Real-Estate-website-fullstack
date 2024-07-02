@@ -147,7 +147,7 @@ const CreateListing = () => {
       const res = await axios.post("/api/listing/create", formData);
       setLoading(false);
       console.log(res.data);
-      navigate(`/listing/${res.data}`)
+      navigate(`/listing/${res.data._id}`)
     } catch (error) {
       setError(error.message);
       console.log(error);
