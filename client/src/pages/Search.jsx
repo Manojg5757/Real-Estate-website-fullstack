@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import axios from 'axios'
+import ListingItem from "../components/ListingItem";
 
 const Search = () => {
   const navigate = useNavigate();
@@ -205,8 +206,22 @@ const Search = () => {
         </form>
       </div>
       {/* listing card */}
-      <div>
-        <h1 className="text-3xl text-slate-700 border-b p-3">Listings</h1>
+      <div className="flex-1">
+       <div className="flex flex-wrap gap-4 p-7">
+       { !loading && listings.length ===0  && (
+          <p className="text-3xl mt-4 ml-4">No Listings Found</p>
+        )}
+        {
+          loading && (
+            <p className="text-center ">Loading...</p>
+          )
+        }
+        {
+          !loading && listings && listings.map((listItems)=>{
+            return <ListingItem key={listItems._id} listItems={listItems} />
+          })
+        }
+       </div>
       </div>
     </div>
   );
