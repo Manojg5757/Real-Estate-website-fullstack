@@ -43,10 +43,10 @@ const Header = () => {
         </form>
         <ul className="flex gap-4">
           <li className="hidden sm:inline hover:underline  text-slate-700">
-            <Link to="/">Menu</Link>
+            <Link to="/">Home</Link>
           </li>
           <li className="hidden sm:inline hover:underline text-slate-700">
-            <Link to="/signout">SignOut</Link>
+            <Link to="/about">About</Link>
           </li>
           <li className="hover:underline text-slate-700">
             <Link to="/profile">
